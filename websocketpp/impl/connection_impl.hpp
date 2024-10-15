@@ -1819,7 +1819,6 @@ void connection<config>::write_frame() {
         } else {
             // Immediately send messages if buffering isn't desired
             if (next_message) {
-                m_elog->write(log::elevel::warn, "Sending non-buffered messages");
                 m_current_msgs.push_back(next_message);
             }
         }
