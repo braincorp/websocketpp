@@ -317,6 +317,7 @@ public:
       , m_internal_state(session::internal_state::USER_INIT)
       , m_msg_manager(new con_msg_manager_type())
       , m_send_buffer_size(0)
+      , m_buffer_messages(true)
       , m_write_flag(false)
       , m_read_flag(true)
       , m_is_server(p_is_server)
@@ -1323,6 +1324,20 @@ public:
      */
     void write_frame();
 
+    /**
+     * This method specifies whether write_frame will send a buffer of messages
+     * to the underlying asio implementation (buffer_messages = true) or if it 
+     * will send each message instantaneously to the underlying asio implementation
+     * (buffer_messages = false).
+     * 
+     * @param buffer_messages Whether in write_frame() to:
+     * - send a buffer of messages (true) - Default
+     * - the message that was just received (false).
+     */
+    void set_messages_to_be_buffered(bool buffer_messages){
+        m_buffer_messages = buffer_messages;
+    }
+
     /// Process the results of a frame write operation and start the next write
     /**
      * \todo unit tests
@@ -1578,6 +1593,9 @@ private:
      * Lock m_write_lock
      */
     std::vector<transport::buffer> m_send_buffer;
+
+    /* Flag used to check if a buffer of messages or just a single message should be sent */
+    bool m_buffer_messages;
 
     /// a list of pointers to hold on to the messages being written to keep them
     /// from going out of scope before the write is complete.
