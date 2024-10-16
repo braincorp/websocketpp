@@ -1804,15 +1804,22 @@ void connection<config>::write_frame() {
             return;
         }
 
-        // pull off all the messages that are ready to write.
-        // stop if we get a message marked terminal
         message_ptr next_message = write_pop();
-        while (next_message) {
-            m_current_msgs.push_back(next_message);
-            if (!next_message->get_terminal()) {
-                next_message = write_pop();
-            } else {
-                next_message = message_ptr();
+        if (m_buffer_messages) {
+            // pull off all the messages that are ready to write.
+            // stop if we get a message marked terminal
+            while (next_message) {
+                m_current_msgs.push_back(next_message);
+                if (!next_message->get_terminal()) {
+                    next_message = write_pop();
+                } else {
+                    next_message = message_ptr();
+                }
+            }
+        } else {
+            // Immediately send messages if buffering isn't desired
+            if (next_message) {
+                m_current_msgs.push_back(next_message);
             }
         }
         
